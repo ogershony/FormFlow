@@ -1,9 +1,648 @@
-# Dental Patient Registration MVP - Technical Specification
+# Dental Patient Registration MVP
 
-## **Product Overview**
-iPad-based digital patient registration system that eliminates paper forms and streamlines data entry into Dentrix.
+> iPad-based digital patient registration system that eliminates paper forms and streamlines data entry into Dentrix.
+
+![Status](https://img.shields.io/badge/status-MVP%20Complete-success)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**Live Demo:** TBD
+**Cost:** $6-12/month
+**Setup Time:** ~30 minutes
 
 ---
+
+## 📋 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Deployment](#-deployment)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Documentation](#-documentation)
+- [Support](#-support)
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ installed
+- A Google account (free)
+- 30 minutes for setup
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ogershony/FormFlow.git
+cd FormFlow
+
+# Install dependencies
+npm install
+
+# Copy environment template
+cp .env.example .env.local
+
+# Edit .env.local with your credentials (see Configuration section)
+```
+
+### Run Development Server
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` to see the app!
+
+---
+
+## 💻 Installation
+
+### 1. System Requirements
+
+- **Node.js**: 18.0 or higher
+- **npm**: 9.0 or higher
+- **Browser**: Modern browser (Chrome, Safari, Firefox)
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+This installs:
+- Next.js 14 (React framework)
+- TypeScript
+- Tailwind CSS (styling)
+- React Hook Form + Zod (form validation)
+- Google APIs (Sheets & Drive)
+- bcrypt.js (password hashing)
+- Additional UI components
+
+### 3. Verify Installation
+
+```bash
+npm run build
+```
+
+If successful, you should see a `.next` folder created.
+
+---
+
+## ⚙️ Configuration
+
+### Step 1: Google Cloud Setup (15 minutes)
+
+#### 1.1 Create Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Click "Create Project"
+3. Name it "Dental Registration"
+4. Note your Project ID
+
+#### 1.2 Enable APIs
+
+Enable these APIs in your project:
+- **Google Sheets API**
+- **Google Drive API**
+
+Go to: APIs & Services → Library → Search → Enable
+
+#### 1.3 Create Service Account
+
+1. Go to: APIs & Services → Credentials
+2. Click: Create Credentials → Service Account
+3. Name: `dental-registration-service`
+4. Role: Editor
+5. Click "Done"
+
+#### 1.4 Generate Key
+
+1. Click on the service account
+2. Go to "Keys" tab
+3. Add Key → Create New Key → JSON
+4. Download and save securely ⚠️
+
+### Step 2: Google Sheets Setup (5 minutes)
+
+#### 2.1 Create Sheet
+
+1. Create a new [Google Sheet](https://sheets.google.com)
+2. Name it "Patient Registration Submissions"
+3. Create a sheet named "Submissions"
+4. Copy the Sheet ID from URL:
+   ```
+   https://docs.google.com/spreadsheets/d/[SHEET_ID_HERE]/edit
+   ```
+
+#### 2.2 Share with Service Account
+
+1. Click "Share" button
+2. Add the service account email (from JSON key file)
+3. Grant "Editor" access
+4. Click "Send"
+
+### Step 3: Google Drive Setup (5 minutes)
+
+#### 3.1 Create Folder
+
+1. Go to [Google Drive](https://drive.google.com)
+2. Create folder: "Patient Insurance Cards"
+3. Copy the folder ID from URL:
+   ```
+   https://drive.google.com/drive/folders/[FOLDER_ID_HERE]
+   ```
+
+#### 3.2 Share with Service Account
+
+1. Right-click folder → Share
+2. Add service account email
+3. Grant "Editor" access
+4. Click "Send"
+
+### Step 4: Environment Variables
+
+#### 4.1 Generate Admin Password Hash
+
+```bash
+node -e "console.log(require('bcryptjs').hashSync('YOUR_PASSWORD_HERE', 10))"
+```
+
+Copy the output (starts with `$2a$10$...`)
+
+#### 4.2 Configure .env.local
+
+Edit `.env.local` with your values:
+
+```env
+# Google Sheets API
+GOOGLE_SHEETS_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+GOOGLE_SHEETS_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----\n"
+GOOGLE_SHEET_ID=your-google-sheet-id-here
+
+# Google Drive API
+GOOGLE_DRIVE_FOLDER_ID=your-google-drive-folder-id-here
+
+# Admin Authentication
+ADMIN_PASSWORD_HASH=$2a$10$...your-bcrypt-hash-here
+
+# Site URL
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+**Getting values from JSON key:**
+- `GOOGLE_SHEETS_CLIENT_EMAIL`: Copy `client_email` field
+- `GOOGLE_SHEETS_PRIVATE_KEY`: Copy `private_key` field (keep the quotes and `\n`)
+
+---
+
+## 🌐 Deployment
+
+### Deploy to Vercel (Recommended - Free)
+
+#### 1. Install Vercel CLI
+
+```bash
+npm install -g vercel
+```
+
+#### 2. Login to Vercel
+
+```bash
+vercel login
+```
+
+Follow the prompts to authenticate.
+
+#### 3. Deploy
+
+```bash
+vercel --prod
+```
+
+#### 4. Add Environment Variables
+
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Select your project
+3. Go to: Settings → Environment Variables
+4. Add each variable from `.env.local`:
+   - `GOOGLE_SHEETS_CLIENT_EMAIL`
+   - `GOOGLE_SHEETS_PRIVATE_KEY`
+   - `GOOGLE_SHEET_ID`
+   - `GOOGLE_DRIVE_FOLDER_ID`
+   - `ADMIN_PASSWORD_HASH`
+   - `NEXT_PUBLIC_SITE_URL` (set to your Vercel URL)
+
+#### 5. Redeploy
+
+```bash
+vercel --prod
+```
+
+Your app is now live! 🎉
+
+### Custom Domain (Optional)
+
+1. In Vercel Dashboard → Settings → Domains
+2. Add your custom domain
+3. Update DNS records as instructed
+4. Update `NEXT_PUBLIC_SITE_URL` in environment variables
+5. SSL certificate is automatically provisioned
+
+---
+
+## ✨ Features
+
+### Patient-Facing Features
+- ✅ **4-Step Progressive Form** - Easy-to-follow registration process
+- ✅ **Auto-Save** - Never lose progress with automatic localStorage saves
+- ✅ **Insurance Card Capture** - Take photos with device camera
+- ✅ **Digital Signatures** - Canvas-based signature capture
+- ✅ **iPad Optimized** - Large touch targets (44px minimum)
+- ✅ **Form Validation** - Real-time error checking
+- ✅ **Medical History** - Complete 50+ condition checklist
+- ✅ **Mobile Responsive** - Works on all devices
+
+### Admin Dashboard
+- ✅ **Secure Login** - Password-protected admin access
+- ✅ **Submissions List** - View all patient registrations
+- ✅ **Status Tracking** - New → In Progress → Complete workflow
+- ✅ **Copy to Clipboard** - Quick data transfer to Dentrix
+- ✅ **Search & Filter** - Find patients quickly
+- ✅ **Insurance Card Viewing** - View uploaded photos
+- ✅ **Stats Dashboard** - Track daily submissions
+
+### Technical Features
+- ✅ **Google Sheets Integration** - All data saved automatically
+- ✅ **Google Drive Storage** - Insurance cards stored securely
+- ✅ **TypeScript** - Type-safe codebase
+- ✅ **Zod Validation** - Schema-based form validation
+- ✅ **HIPAA Ready** - Secure architecture (requires Google Workspace BAA)
+- ✅ **No Database Required** - Uses Google Sheets as database
+- ✅ **Zero Cost Hosting** - Free tier on Vercel
+
+---
+
+## 🏗️ Architecture
+
+### Tech Stack
+
+**Frontend:**
+- Next.js 14 (React)
+- TypeScript
+- Tailwind CSS
+- shadcn/ui components
+- React Hook Form + Zod
+
+**Backend:**
+- Next.js API Routes (serverless)
+- Google Sheets API (database)
+- Google Drive API (file storage)
+- bcrypt.js (authentication)
+
+**Hosting:**
+- Vercel (free tier)
+- Automatic HTTPS
+- Global CDN
+
+### System Architecture
+
+```
+┌─────────────────┐
+│   iPad Browser  │
+│  (Patient View) │
+└────────┬────────┘
+         │ HTTPS
+         ▼
+┌─────────────────┐
+│  Vercel Hosting │
+│   (Next.js App) │
+└────────┬────────┘
+         │
+         ├─────────────────┐
+         │                 │
+         ▼                 ▼
+┌──────────────┐   ┌──────────────┐
+│ Google Sheets│   │ Google Drive │
+│   (Patient   │   │  (Insurance  │
+│    Data)     │   │   Card Pics) │
+└──────────────┘   └──────────────┘
+         │                 │
+         └────────┬────────┘
+                  ▼
+         ┌─────────────────┐
+         │ Staff Dashboard │
+         │ (Admin View)    │
+         └─────────────────┘
+```
+
+---
+
+## 📚 Documentation
+
+### Project Structure
+
+```
+FormFlow/
+├── app/                        # Next.js app directory
+│   ├── page.tsx               # Home/landing page
+│   ├── layout.tsx             # Root layout
+│   ├── globals.css            # Global styles
+│   ├── form/                  # Patient form pages
+│   │   ├── step-1-info/
+│   │   ├── step-2-insurance/
+│   │   ├── step-3-medical/
+│   │   ├── step-4-consent/
+│   │   └── complete/
+│   ├── admin/                 # Admin dashboard
+│   │   ├── login/
+│   │   ├── dashboard/
+│   │   └── submission/[id]/
+│   └── api/                   # API routes
+│       ├── submit-form/
+│       ├── submissions/
+│       ├── submission/[id]/
+│       └── admin/login/
+├── components/                # React components
+│   ├── ui/                   # shadcn/ui components
+│   └── PatientForm/          # Custom form components
+├── lib/                       # Utility functions
+│   ├── schemas.ts            # Zod validation schemas
+│   ├── google-sheets.ts      # Google Sheets integration
+│   ├── google-drive.ts       # Google Drive integration
+│   ├── auth.ts               # Authentication
+│   └── utils.ts              # Helpers
+├── data/                      # Static data
+│   ├── medical-conditions.ts
+│   └── form-text.ts
+├── SETUP.md                   # Detailed setup guide
+├── .env.example              # Environment template
+└── package.json              # Dependencies
+```
+
+### Available Scripts
+
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+```
+
+### Environment Variables
+
+See `.env.example` for all required variables:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GOOGLE_SHEETS_CLIENT_EMAIL` | Service account email | Yes |
+| `GOOGLE_SHEETS_PRIVATE_KEY` | Service account private key | Yes |
+| `GOOGLE_SHEET_ID` | Google Sheet ID | Yes |
+| `GOOGLE_DRIVE_FOLDER_ID` | Google Drive folder ID | Yes |
+| `ADMIN_PASSWORD_HASH` | Bcrypt hash of admin password | Yes |
+| `NEXT_PUBLIC_SITE_URL` | Public URL of the site | Yes |
+
+### API Routes
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/submit-form` | POST | Submit patient registration form |
+| `/api/submissions` | GET | Get all submissions |
+| `/api/submission/[id]` | GET | Get single submission |
+| `/api/submission/[id]` | PATCH | Update submission status |
+| `/api/admin/login` | POST | Admin login |
+
+---
+
+## 📖 Usage
+
+### For Patients
+
+1. Visit the homepage
+2. Click "Start Registration"
+3. Complete all 4 steps:
+   - Personal information
+   - Insurance details
+   - Medical history
+   - Consent & signatures
+4. Submit the form
+5. Return iPad to staff
+
+**Time:** 5-10 minutes
+
+### For Staff
+
+#### Daily Workflow
+
+1. **Patient arrives** → Hand them the iPad
+2. **Patient completes** → Form auto-saves every change
+3. **Check dashboard** → Go to `/admin/dashboard`
+4. **View submission** → Click "View Details"
+5. **Copy to Dentrix** → Use individual or "Copy All" buttons
+6. **Update status** → Mark as "Complete"
+
+#### Admin Dashboard
+
+**Login:**
+- URL: `/admin/login`
+- Password: Set during configuration
+
+**Features:**
+- View all submissions
+- Filter by status (New/In Progress/Complete)
+- Search by name, email, or phone
+- Copy patient data to clipboard
+- View insurance card photos
+- Track daily statistics
+
+---
+
+## 🔒 Security & HIPAA Compliance
+
+### Built-in Security
+
+- ✅ HTTPS enforced (Vercel default)
+- ✅ Password-protected admin access (bcrypt)
+- ✅ Service account authentication for APIs
+- ✅ Environment variables for secrets
+- ✅ No PHI stored in browser (cleared on submit)
+- ✅ HTTP-only cookies for sessions
+
+### HIPAA Compliance Checklist
+
+For full HIPAA compliance:
+
+- [ ] **Upgrade to Google Workspace** (required for BAA)
+- [ ] **Sign Business Associate Agreement** with Google
+- [ ] **Enable 2-Factor Authentication** on all Google accounts
+- [ ] **Implement Access Logs** (Google Workspace audit logs)
+- [ ] **Regular Security Audits** (review access quarterly)
+- [ ] **Staff Training** on PHI handling
+- [ ] **Backup Strategy** (export sheet data weekly)
+- [ ] **Incident Response Plan** documented
+
+**Cost for HIPAA:** $6-12/month (Google Workspace)
+
+---
+
+## 💰 Cost Breakdown
+
+| Item | Cost | Notes |
+|------|------|-------|
+| Vercel Hosting | **$0** | Free tier (100GB bandwidth) |
+| Google Workspace | **$6-12/mo** | Required for HIPAA BAA |
+| Custom Domain | **$12/year** | Optional |
+| **Total Monthly** | **$6-12** | 76% cheaper than typical solutions |
+
+**Comparison:**
+- Traditional solution: $50-100/month
+- This MVP: $6-12/month
+- **Savings:** $44-88/month ($528-1,056/year)
+
+---
+
+## 🛠️ Troubleshooting
+
+### Common Issues
+
+#### "Failed to save form data to Google Sheets"
+
+**Cause:** Service account doesn't have access to sheet
+
+**Solution:**
+1. Verify service account email has Editor access
+2. Check `GOOGLE_SHEET_ID` is correct
+3. Verify `GOOGLE_SHEETS_PRIVATE_KEY` has `\n` for newlines
+
+#### "Failed to upload image to Google Drive"
+
+**Cause:** Service account doesn't have access to folder
+
+**Solution:**
+1. Verify service account has Editor access to folder
+2. Check `GOOGLE_DRIVE_FOLDER_ID` is correct
+3. Ensure Google Drive API is enabled
+
+#### Admin login not working
+
+**Cause:** Incorrect password hash
+
+**Solution:**
+1. Regenerate hash: `node -e "console.log(require('bcryptjs').hashSync('password', 10))"`
+2. Update `ADMIN_PASSWORD_HASH` in `.env.local`
+3. Restart dev server
+
+#### Images not displaying
+
+**Cause:** Next.js image domain not configured
+
+**Solution:**
+1. Add `drive.google.com` to `next.config.js` domains
+2. Rebuild and restart
+
+### Getting Help
+
+1. Check [SETUP.md](./SETUP.md) for detailed instructions
+2. Review error messages in browser console
+3. Check Vercel deployment logs
+4. Verify all environment variables are set
+
+---
+
+## 🤝 Support
+
+### Resources
+
+- **Detailed Setup Guide:** [SETUP.md](./SETUP.md)
+- **Google Cloud Console:** [console.cloud.google.com](https://console.cloud.google.com/)
+- **Vercel Dashboard:** [vercel.com/dashboard](https://vercel.com/dashboard)
+
+### Contact
+
+For questions or issues:
+- Create an issue on GitHub
+- Email: support@redmonddentalsmiles.com
+
+---
+
+## 📝 Development Checklist
+
+### MVP Complete ✅
+
+- [x] Set up Next.js project
+- [x] Configure Tailwind CSS + shadcn/ui
+- [x] Set up Google Sheets API connection
+- [x] Set up Google Drive API connection
+- [x] Create basic page routing
+- [x] Build Step 1: Patient Info form
+- [x] Build Step 2: Insurance form
+- [x] Build Step 3: Medical History form
+- [x] Build Step 4: Consent & Signatures
+- [x] Implement form validation (Zod)
+- [x] Add progress indicator
+- [x] Implement auto-save to localStorage
+- [x] Build admin login page
+- [x] Build submissions list view
+- [x] Build submission detail view
+- [x] Implement copy-to-clipboard functionality
+- [x] Add status update feature
+- [x] Add search/filter functionality
+- [x] Add insurance card image upload
+- [x] Add signature capture
+- [x] Optimize for iPad Safari
+- [x] Deploy to Vercel
+
+### Future Enhancements
+
+- [ ] Email notifications for new submissions
+- [ ] SMS reminders for appointments
+- [ ] Multi-language support (Spanish)
+- [ ] Export to Dentrix format
+- [ ] Analytics dashboard
+- [ ] Automated insurance verification
+- [ ] Patient portal access
+- [ ] Mobile app version
+
+---
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+---
+
+## 👏 Acknowledgments
+
+Built for **Redmond Dental Smiles**
+- Dr. Malinda Lam-Gershony, DDS
+- 16710 NE 79th ST, Suite 100
+- Redmond, WA 98052
+- (425) 867-1484
+
+**Technologies:**
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Google Sheets API](https://developers.google.com/sheets/api)
+- [Vercel](https://vercel.com/)
+
+---
+
+<div align="center">
+
+**Made with ❤️ for better dental care**
+
+[⬆ Back to Top](#dental-patient-registration-mvp)
+
+</div>
+
+---
+
+# Technical Specification (Original)
 
 ## **Updated Tech Stack (Simplified & Cost-Effective)**
 
