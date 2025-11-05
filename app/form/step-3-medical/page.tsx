@@ -13,6 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProgressBar } from '@/components/PatientForm/ProgressBar'
 import { medicalConditions, allergyOptions } from '@/data/medical-conditions'
+import { sampleMedicalHistory } from '@/lib/sample-data'
 
 const initialData: MedicalHistoryFormData = {
   reasonForVisit: '',
@@ -68,6 +69,7 @@ export default function Step3MedicalPage() {
     formState: { errors },
     watch,
     control,
+    setValue,
   } = useForm<MedicalHistoryFormData>({
     resolver: zodResolver(medicalHistorySchema),
     defaultValues: data,
@@ -76,6 +78,13 @@ export default function Step3MedicalPage() {
   const onSubmit = (formData: MedicalHistoryFormData) => {
     setData(formData)
     router.push('/form/step-4-consent')
+  }
+
+  // Dev-only: Auto-fill with sample data
+  const fillSampleData = () => {
+    Object.entries(sampleMedicalHistory).forEach(([key, value]) => {
+      setValue(key as keyof MedicalHistoryFormData, value)
+    })
   }
 
   if (!isLoaded) {
@@ -93,6 +102,16 @@ export default function Step3MedicalPage() {
             <CardDescription>
               Please provide your complete medical and dental history
             </CardDescription>
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillSampleData}
+                className="mt-4"
+              >
+                🔧 Fill Sample Data (Dev Only)
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -413,7 +432,8 @@ export default function Step3MedicalPage() {
                           <Checkbox
                             id={`condition-${condition}`}
                             checked={field.value?.includes(condition)}
-                            onCheckedChange={(checked) => {
+                            onChange={(e) => {
+                              const checked = e.target.checked
                               const updatedValue = checked
                                 ? [...(field.value || []), condition]
                                 : field.value?.filter((c) => c !== condition) || []
@@ -526,7 +546,8 @@ export default function Step3MedicalPage() {
                           <Checkbox
                             id={`allergy-${allergy}`}
                             checked={field.value?.includes(allergy)}
-                            onCheckedChange={(checked) => {
+                            onChange={(e) => {
+                              const checked = e.target.checked
                               const updatedValue = checked
                                 ? [...(field.value || []), allergy]
                                 : field.value?.filter((a) => a !== allergy) || []

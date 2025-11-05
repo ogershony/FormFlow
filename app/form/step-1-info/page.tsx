@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ProgressBar } from '@/components/PatientForm/ProgressBar'
 import { formatPhoneNumber } from '@/lib/utils'
+import { samplePatientInfo } from '@/lib/sample-data'
 
 const initialData: PatientInfoFormData = {
   patientName: '',
@@ -65,6 +66,13 @@ export default function Step1InfoPage() {
     router.push('/form/step-2-insurance')
   }
 
+  // Dev-only: Auto-fill with sample data
+  const fillSampleData = () => {
+    Object.entries(samplePatientInfo).forEach(([key, value]) => {
+      setValue(key as keyof PatientInfoFormData, value)
+    })
+  }
+
   // Watch status field to show/hide spouse fields
   const statusValue = watch('status')
   if ((statusValue === 'married' || statusValue === 'partnered') && !showSpouseFields) {
@@ -97,6 +105,16 @@ export default function Step1InfoPage() {
             <CardDescription>
               Please provide your personal and contact information
             </CardDescription>
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillSampleData}
+                className="mt-4"
+              >
+                🔧 Fill Sample Data (Dev Only)
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

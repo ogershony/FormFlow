@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
-import { getSubmissionById, updateSubmissionStatus } from '@/lib/google-sheets'
+import { getSubmissionById, updateSubmissionStatus, deleteSubmission } from '@/lib/google-sheets'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const rowIndex = parseInt(params.id)
+    const { id } = await params
+    const rowIndex = parseInt(id)
 
     if (isNaN(rowIndex)) {
       return NextResponse.json(
@@ -43,10 +44,11 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const rowIndex = parseInt(params.id)
+    const { id } = await params
+    const rowIndex = parseInt(id)
     const { status } = await request.json()
 
     if (isNaN(rowIndex)) {
@@ -75,6 +77,40 @@ export async function PATCH(
       {
         success: false,
         error: 'Failed to update submission',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const rowIndex = parseInt(id)
+
+    if (isNaN(rowIndex) || rowIndex < 2) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid row index' },
+        { status: 400 }
+      )
+    }
+
+    await deleteSubmission(rowIndex)
+
+    return NextResponse.json({
+      success: true,
+      message: 'Submission deleted successfully',
+    })
+  } catch (error) {
+    console.error('Error deleting submission:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to delete submission',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

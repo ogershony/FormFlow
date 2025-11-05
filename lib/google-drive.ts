@@ -39,6 +39,7 @@ export async function uploadImageToDrive(
       requestBody: fileMetadata,
       media: media,
       fields: 'id, webViewLink, thumbnailLink',
+      supportsAllDrives: true,
     })
 
     const fileId = response.data.id!
@@ -50,6 +51,7 @@ export async function uploadImageToDrive(
         role: 'reader',
         type: 'anyone',
       },
+      supportsAllDrives: true,
     })
 
     const fileUrl = `https://drive.google.com/file/d/${fileId}/view`

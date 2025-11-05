@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ProgressBar } from '@/components/PatientForm/ProgressBar'
 import { SignaturePad } from '@/components/PatientForm/SignaturePad'
 import { FINANCIAL_POLICY, HIPAA_NOTICE } from '@/data/form-text'
+import { sampleConsentSignatures } from '@/lib/sample-data'
 
 const initialData: ConsentSignaturesFormData = {
   financialPolicySignature: '',
@@ -85,6 +86,13 @@ export default function Step4ConsentPage() {
     }
   }
 
+  // Dev-only: Auto-fill with sample data
+  const fillSampleData = () => {
+    Object.entries(sampleConsentSignatures).forEach(([key, value]) => {
+      setValue(key as keyof ConsentSignaturesFormData, value)
+    })
+  }
+
   if (!isLoaded) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
@@ -100,6 +108,16 @@ export default function Step4ConsentPage() {
             <CardDescription>
               Please review and sign the following documents
             </CardDescription>
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillSampleData}
+                className="mt-4"
+              >
+                🔧 Fill Sample Data (Dev Only)
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

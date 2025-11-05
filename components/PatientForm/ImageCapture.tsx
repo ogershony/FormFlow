@@ -16,28 +16,92 @@ interface ImageCaptureProps {
 export function ImageCapture({ label, value, onChange, error }: ImageCaptureProps) {
   const [preview, setPreview] = useState<string | null>(value || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new window.Image()
+        img.onload = () => {
+          // Create canvas for compression
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'))
+            return
+          }
+
+          // Calculate new dimensions (max 1200px width, maintain aspect ratio)
+          let width = img.width
+          let height = img.height
+          const maxWidth = 1200
+          const maxHeight = 1200
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width
+              width = maxWidth
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height
+              height = maxHeight
+            }
+          }
+
+          canvas.width = width
+          canvas.height = height
+
+          // Draw and compress image
+          ctx.drawImage(img, 0, 0, width, height)
+
+          // Convert to JPEG with 80% quality to reduce size
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8)
+
+          // Check if compressed size is still too large (Google Sheets has 50k char limit)
+          if (compressedBase64.length > 45000) {
+            // Try again with lower quality
+            const veryCompressedBase64 = canvas.toDataURL('image/jpeg', 0.6)
+            resolve(veryCompressedBase64)
+          } else {
+            resolve(compressedBase64)
+          }
+        }
+        img.onerror = () => reject(new Error('Failed to load image'))
+        img.src = e.target?.result as string
+      }
+      reader.onerror = () => reject(new Error('Failed to read file'))
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB')
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file')
       return
     }
 
-    // Convert to base64
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const base64String = reader.result as string
+    try {
+      // Compress and convert to base64
+      const base64String = await compressImage(file)
       setPreview(base64String)
       onChange(base64String)
+    } catch (error) {
+      console.error('Error processing image:', error)
+      alert('Failed to process image. Please try another file.')
     }
-    reader.readAsDataURL(file)
   }
 
   const handleCameraCapture = () => {
+    cameraInputRef.current?.click()
+  }
+
+  const handleFileUpload = () => {
     fileInputRef.current?.click()
   }
 
@@ -46,6 +110,9 @@ export function ImageCapture({ label, value, onChange, error }: ImageCaptureProp
     onChange('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = ''
     }
   }
 
@@ -81,11 +148,21 @@ export function ImageCapture({ label, value, onChange, error }: ImageCaptureProp
             </p>
           </div>
 
+          {/* Hidden input for camera */}
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+
+          {/* Hidden input for file upload */}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={handleFileChange}
             className="hidden"
           />
@@ -103,7 +180,7 @@ export function ImageCapture({ label, value, onChange, error }: ImageCaptureProp
             <Button
               type="button"
               variant="outline"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handleFileUpload}
               className="flex items-center gap-2"
             >
               <Upload className="h-4 w-4" />

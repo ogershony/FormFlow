@@ -14,6 +14,7 @@ import { ProgressBar } from '@/components/PatientForm/ProgressBar'
 import { ImageCapture } from '@/components/PatientForm/ImageCapture'
 import { SignaturePad } from '@/components/PatientForm/SignaturePad'
 import { INSURANCE_ASSIGNMENT } from '@/data/form-text'
+import { sampleInsuranceInfo } from '@/lib/sample-data'
 
 const initialData: InsuranceInfoFormData = {
   hasInsurance: true,
@@ -53,6 +54,13 @@ export default function Step2InsurancePage() {
     router.push('/form/step-3-medical')
   }
 
+  // Dev-only: Auto-fill with sample data
+  const fillSampleData = () => {
+    Object.entries(sampleInsuranceInfo).forEach(([key, value]) => {
+      setValue(key as keyof InsuranceInfoFormData, value)
+    })
+  }
+
   const hasInsurance = watch('hasInsurance')
   if (hasInsurance !== showInsuranceFields) {
     setShowInsuranceFields(hasInsurance)
@@ -73,6 +81,16 @@ export default function Step2InsurancePage() {
             <CardDescription>
               Please provide your dental insurance details
             </CardDescription>
+            {process.env.NODE_ENV === 'development' && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fillSampleData}
+                className="mt-4"
+              >
+                🔧 Fill Sample Data (Dev Only)
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

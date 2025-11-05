@@ -7,48 +7,11 @@ export async function POST(request: Request) {
   try {
     const formData: CompleteFormData = await request.json()
 
-    // Upload insurance card images to Google Drive if they exist
-    let insuranceCardFrontUrl = formData.insuranceInfo.insuranceCardFront || ''
-    let insuranceCardBackUrl = formData.insuranceInfo.insuranceCardBack || ''
-
-    if (insuranceCardFrontUrl && insuranceCardFrontUrl.startsWith('data:')) {
-      try {
-        const buffer = base64ToBuffer(insuranceCardFrontUrl)
-        const mimeType = getMimeTypeFromBase64(insuranceCardFrontUrl)
-        const fileName = `insurance_card_front_${Date.now()}.jpg`
-
-        const result = await uploadImageToDrive(buffer, fileName, mimeType)
-        insuranceCardFrontUrl = result.fileUrl
-      } catch (error) {
-        console.error('Error uploading front insurance card:', error)
-      }
-    }
-
-    if (insuranceCardBackUrl && insuranceCardBackUrl.startsWith('data:')) {
-      try {
-        const buffer = base64ToBuffer(insuranceCardBackUrl)
-        const mimeType = getMimeTypeFromBase64(insuranceCardBackUrl)
-        const fileName = `insurance_card_back_${Date.now()}.jpg`
-
-        const result = await uploadImageToDrive(buffer, fileName, mimeType)
-        insuranceCardBackUrl = result.fileUrl
-      } catch (error) {
-        console.error('Error uploading back insurance card:', error)
-      }
-    }
-
-    // Update form data with Drive URLs
-    const updatedFormData = {
-      ...formData,
-      insuranceInfo: {
-        ...formData.insuranceInfo,
-        insuranceCardFront: insuranceCardFrontUrl,
-        insuranceCardBack: insuranceCardBackUrl,
-      },
-    }
+    // Store insurance cards and signatures as base64 in the sheet
+    // No Google Drive uploads (service accounts don't have storage quota)
 
     // Append to Google Sheets
-    await appendFormToSheet(updatedFormData)
+    await appendFormToSheet(formData)
 
     return NextResponse.json({
       success: true,
