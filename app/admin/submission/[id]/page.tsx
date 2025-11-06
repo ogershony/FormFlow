@@ -276,14 +276,24 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-          <Button
-            variant="destructive"
-            onClick={deleteSubmission}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Submission
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              onClick={() => window.open(`/api/submission/${resolvedParams.id}/pdf`, '_blank')}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download PDF
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteSubmission}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Submission
+            </Button>
+          </div>
         </div>
 
         {/* Patient Name and Status */}

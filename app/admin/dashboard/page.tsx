@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Users, Clock, CheckCircle, FileText } from 'lucide-react'
+import { Users, Clock, CheckCircle, FileText, Download } from 'lucide-react'
 
 interface Submission {
   timestamp: string
@@ -232,7 +232,16 @@ export default function AdminDashboardPage() {
                         Submitted: {new Date(submission.timestamp).toLocaleString()}
                       </p>
                     </div>
-                    <div className="mt-3 md:mt-0">
+                    <div className="mt-3 md:mt-0 flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(`/api/submission/${submission.rowIndex}/pdf`, '_blank')}
+                        className="flex items-center gap-1"
+                      >
+                        <Download className="h-3 w-3" />
+                        PDF
+                      </Button>
                       <Link href={`/admin/submission/${submission.rowIndex}`}>
                         <Button variant="outline" size="sm">
                           View Details
