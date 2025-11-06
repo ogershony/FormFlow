@@ -7,33 +7,33 @@ interface SubmissionData {
   formData: any[] // The full row data from Google Sheets
 }
 
-// Create styles - highly condensed for 2-page layout
+// Create styles - optimized for 2-page layout with larger fonts
 const styles = StyleSheet.create({
   page: {
     padding: 20,
-    fontSize: 7,
+    fontSize: 10,
     fontFamily: 'Helvetica',
   },
   header: {
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   subheader: {
-    fontSize: 7,
+    fontSize: 10,
     textAlign: 'center',
-    marginBottom: 0.5,
+    marginBottom: 1.5,
   },
   divider: {
     borderBottom: '1px solid #000',
-    marginVertical: 4,
+    marginVertical: 6,
   },
   sectionHeader: {
-    fontSize: 9,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginTop: 4,
-    marginBottom: 2,
+    marginTop: 6,
+    marginBottom: 3,
     textDecoration: 'underline',
   },
   twoColumn: {
@@ -45,25 +45,25 @@ const styles = StyleSheet.create({
     width: '48%',
   },
   row: {
-    marginBottom: 1,
+    marginBottom: 2,
   },
   fieldLabel: {
     fontWeight: 'bold',
-    fontSize: 7,
+    fontSize: 10,
   },
   fieldValue: {
-    fontSize: 7,
+    fontSize: 10,
   },
   submissionInfo: {
-    fontSize: 6,
+    fontSize: 9,
     textAlign: 'right',
-    marginBottom: 2,
+    marginBottom: 3,
   },
   footer: {
-    fontSize: 5,
+    fontSize: 8,
     color: '#666',
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 10,
   },
   insuranceImage: {
     maxWidth: '100%',
@@ -80,9 +80,9 @@ const styles = StyleSheet.create({
     border: '1px solid #ccc',
   },
   imageLabel: {
-    fontSize: 6,
+    fontSize: 9,
     fontWeight: 'bold',
-    marginTop: 3,
+    marginTop: 4,
     marginBottom: 1,
   },
   imageRow: {
@@ -196,13 +196,13 @@ const PatientFormDocument = ({ submission }: { submission: SubmissionData }) => 
               <View style={styles.imageRow}>
                 {data[38] && (
                   <View style={styles.imageContainer}>
-                    <Text style={{ fontSize: 6, marginBottom: 1 }}>Insurance Card Front:</Text>
+                    <Text style={{ fontSize: 9, marginBottom: 1 }}>Insurance Card Front:</Text>
                     <Image src={data[38]} style={styles.insuranceImage} />
                   </View>
                 )}
                 {data[39] && (
                   <View style={styles.imageContainer}>
-                    <Text style={{ fontSize: 6, marginBottom: 1 }}>Insurance Card Back:</Text>
+                    <Text style={{ fontSize: 9, marginBottom: 1 }}>Insurance Card Back:</Text>
                     <Image src={data[39]} style={styles.insuranceImage} />
                   </View>
                 )}
@@ -281,7 +281,7 @@ const PatientFormDocument = ({ submission }: { submission: SubmissionData }) => 
             <Field label="Takes Birth Control" value={data[79]} />
 
             <Text style={styles.sectionHeader}>CONSENT & SIGNATURES</Text>
-            <Text style={{ fontSize: 7, fontWeight: 'bold', marginTop: 2 }}>Financial Policy</Text>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 2 }}>Financial Policy</Text>
             <Field label="Printed Name" value={data[82]} />
             <Field label="Date" value={data[83]} />
             {data[84] && data[84].startsWith('data:') && (
@@ -291,7 +291,7 @@ const PatientFormDocument = ({ submission }: { submission: SubmissionData }) => 
               </View>
             )}
 
-            <Text style={{ fontSize: 7, fontWeight: 'bold', marginTop: 4 }}>HIPAA Privacy</Text>
+            <Text style={{ fontSize: 10, fontWeight: 'bold', marginTop: 4 }}>HIPAA Privacy</Text>
             <Field label="Patient Name" value={data[85]} />
             <Field label="Date" value={data[86]} />
             <Field label="Relationship" value={data[87]} />
@@ -302,13 +302,13 @@ const PatientFormDocument = ({ submission }: { submission: SubmissionData }) => 
               </View>
             )}
 
-            <Text style={{ fontSize: 6, fontWeight: 'bold', marginTop: 2 }}>HIPAA Disclosure:</Text>
-            {data[89] && <Text style={{ fontSize: 6 }}>• Immediate: {data[89]}</Text>}
-            {data[90] && <Text style={{ fontSize: 6 }}>• Extended: {data[90]}</Text>}
-            {data[91] && <Text style={{ fontSize: 6 }}>• Other: {data[91]}</Text>}
+            <Text style={{ fontSize: 9, fontWeight: 'bold', marginTop: 2 }}>HIPAA Disclosure:</Text>
+            {data[89] && <Text style={{ fontSize: 9 }}>• Immediate: {data[89]}</Text>}
+            {data[90] && <Text style={{ fontSize: 9 }}>• Extended: {data[90]}</Text>}
+            {data[91] && <Text style={{ fontSize: 9 }}>• Other: {data[91]}</Text>}
 
             <Text style={styles.sectionHeader}>STAFF NOTES</Text>
-            <Text style={{ fontSize: 7 }}>{data[92] || 'N/A'}</Text>
+            <Text style={{ fontSize: 10 }}>{data[92] || 'N/A'}</Text>
           </View>
         </View>
 
