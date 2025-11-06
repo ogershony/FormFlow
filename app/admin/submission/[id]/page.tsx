@@ -4,7 +4,7 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Copy, CheckCircle, ArrowLeft, Trash2, Download } from 'lucide-react'
+import { Copy, CheckCircle, ArrowLeft, Trash2, Download, FileText } from 'lucide-react'
 
 export default function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
@@ -79,6 +79,10 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
       console.error('Error deleting submission:', error)
       alert('Error deleting submission')
     }
+  }
+
+  const downloadPDF = () => {
+    window.open(`/api/generate-pdf/${resolvedParams.id}`, '_blank')
   }
 
   const CopyButton = ({ text, field }: { text: string; field: string }) => (
@@ -276,14 +280,24 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Button>
-          <Button
-            variant="destructive"
-            onClick={deleteSubmission}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Submission
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              onClick={downloadPDF}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              Download PDF
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={deleteSubmission}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Submission
+            </Button>
+          </div>
         </div>
 
         {/* Patient Name and Status */}
