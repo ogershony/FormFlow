@@ -2,10 +2,34 @@ import { google } from 'googleapis'
 import type { CompleteFormData } from './schemas'
 
 export async function getGoogleSheetsClient() {
+  // Validate environment variables
+  if (!process.env.GOOGLE_SHEETS_CLIENT_EMAIL) {
+    throw new Error('Missing GOOGLE_SHEETS_CLIENT_EMAIL environment variable')
+  }
+  if (!process.env.GOOGLE_SHEETS_PRIVATE_KEY) {
+    throw new Error('Missing GOOGLE_SHEETS_PRIVATE_KEY environment variable')
+  }
+  if (!process.env.GOOGLE_SHEET_ID) {
+    throw new Error('Missing GOOGLE_SHEET_ID environment variable')
+  }
+
+  // Handle private key formatting - support both escaped and actual newlines
+  let privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY
+
+  // If the key contains literal \n strings, replace them with actual newlines
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n')
+  }
+
+  // Validate key format
+  if (!privateKey.includes('BEGIN PRIVATE KEY') || !privateKey.includes('END PRIVATE KEY')) {
+    throw new Error('Invalid private key format - missing BEGIN/END markers')
+  }
+
   const auth = new google.auth.GoogleAuth({
     credentials: {
       client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-      private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      private_key: privateKey,
     },
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   })
